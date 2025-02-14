@@ -1,8 +1,111 @@
-h1 {
-    color: aqua;
-    background-color: black;
+@import url('https://fonts.googleapis.com/css2?family=Lobster&family=VT323&display=swap');
+
+body {
+    background-color: #0086C5;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0px;
 }
 
-p {
-    color: blueviolet;
+.container {
+    display: flex;
+    flex-direction: column;
+    background-color: #ED0E0F;
+    border: 10px solid #202021;
+    border-radius: 3%;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 40px;
+    box-sizing: border-box;
+    box-shadow: 3px 3px 10px #20202199;
+}
+
+.title {
+    color: #FFC947;
+    font-family: "Lobster";
+    align-self: center;
+    font-size: 37px;
+}
+
+.board {
+    width: 300px;
+    height: 300px;
+    background-color: #B5B5B5;
+    border: 5px solid #202021;
+    text-align: center;
+    box-sizing: border-box;
+    font-family: "VT323", 'Courier New', monospace;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 75px;
+    color: #3D3E40;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+}
+
+.cell {
+    background-color: #EAE9E7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell:hover {
+    box-shadow: inset 1px 1px 5px #202021;
+    cursor: pointer;
+}
+
+.cell:active {
+    box-shadow: inset 3px 3px 5px #202021;
+}
+
+.display {
+    text-align: center;
+    color: #3D3E40;
+    background-color: #EAE9E7;
+    border: 5px solid #202021;
+    padding: 5px 10px;
+    width: 275px;
+    height: 2em;
+    border-radius: 10px;
+    font-family: "VT323", 'Courier New', monospace;
+    font-size: 1.5em;
+}
+
+.buttons {
+    gap: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
+button {
+    background-color: #FBFAFF;
+    border-radius: 20px;
+    border: 5px solid #202021;
+    margin-bottom: 10px;
+    padding: 5px 0;
+    width: 115px;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    box-shadow: 1px 1px 5px #202021;
+    text-align: center;
+    display: inline-block;
+}
+
+button:hover {
+    box-shadow: inset 1px 1px 5px #202021;
+    cursor: pointer;
+}
+
+button:active {
+    box-shadow: inset 3px 3px 5px #202021;
 }

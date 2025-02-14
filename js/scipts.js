@@ -1,7 +1,3 @@
-const myP = document.querySelector('p');
-myP.innerText = 'Testing, 1, 2, 3...';
-
-// You’re going to store the gameboard as an array inside of a Gameboard object, so start there!
 const GameBoard = (function() {
     let gameBoard = []
     let gameRows = 0;
@@ -22,23 +18,21 @@ const GameBoard = (function() {
 
     function markPlace(player, row, column, board = gameBoard) {
         if (board[row] === undefined || board[row][column] === undefined || board[row][column] !== 0) {
-            console.log(`Can't play there.`);
             return false;
         } else {
             board[row][column] = player.mark;
-            console.log(`${player.name} placed ${player.mark} at row ${row}, column ${column}.`);
             return true;
         }
     }
 
     function seeBoard() {
-        console.log(gameBoard);
+        return gameBoard;
     }
 
     function checkWinner() {
         let placesLeft = gameRows * gameColumns;
         for (let row in gameBoard) {
-            for (let column in gameBoard) {
+            for (let column in gameBoard[row]) {
                 if (gameBoard[row][column] !== 0) {
                     placesLeft--;
                 }
@@ -71,23 +65,60 @@ const GameBoard = (function() {
     }
 
     return {markPlace, seeBoard, checkWinner, makeBoard};
-
 })();
 
-// Your players are also going to be stored in objects,
-const Players = (function(first = 'player1', second = 'player2') {
-    const player1 = {name: first, mark: 'X'};
-    const player2 = {name: second, mark: 'O'};
-    return [player1, player2];
+const Players = (function() {
+    let player1;
+    let player2;
+
+    function makePlayers(first = 'Player One', second = 'Player Two') {
+        player1 = {name: first, mark: 'X'};
+        player2 = {name: second, mark: 'O'};
+    }
+
+    return {player1, player2, makePlayers};
 })();
 
-// and you’re probably going to want an object to control the flow of the game itself.
 const PlayGame = (function() {
-
     const players = Players;
     const gameBoard = GameBoard;
-    gameBoard.makeBoard()
-    let winner = gameBoard.checkWinner()
+
+    let currentPlayer = players[0];
+    let winningPlayer = gameOver();
+
+    gameBoard.makeBoard();
+
+    function playTurn(player = currentPlayer, row, column) {
+        currentPlayer = player;
+        gameBoard.markPlace(player, row, column);
+        if (gameOver()) {
+            winningPlayer = currentPlayer;
+        } else if (gameOver() === 'Tie!') {
+            winningPlayer = 'Tie!'
+        } else if (currentPlayer = players[0]) {
+            currentPlayer = players[1];
+        } else {
+            currentPlayer = players[0];
+        }
+    }
+
+    function checkCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    function checkWinningPlayer() {
+        return winningPlayer;
+    }
+
+    function gameOver() {
+        if (gameBoard.checkWinner()) {
+            return true;
+        } else if (!gameBoard.checkWinner()) {
+            return false;
+        } else {
+            return 'Tie!'
+        }
+    }
 
     function playGame() {
         let winningPlayer;
@@ -118,13 +149,53 @@ const PlayGame = (function() {
         winner = gameBoard.checkWinner();
     }
 
-    return {playGame, winner};
+    return {playGame, playTurn, checkCurrentPlayer, checkWinningPlayer};
 
     // displayController (later)
 
 })();
 
-// Make sure you include logic that checks for when the game is over!
-// You should be checking for all winning 3-in-a-rows and ties.
+const displayGame = (function() {
+    const board = document.querySelector('.board');
+    const display = document.querySelector('.display');
+    const buttons = document.querySelector('.buttons');
+    
+    const gameBoard = GameBoard.seeBoard();
+    const boardFunctions = GameBoard;
+    
+    display.textContent = "Player 1's turn..."
 
-const gameTime = PlayGame;
+    function drawBoard() {
+        while (board.firstChild) {
+            board.removeChild(board.lastChild);
+        }
+        for (let row in gameBoard) {
+            for (let cell in gameBoard[row]) {
+                let thisCell = document.createElement('div');
+                thisCell.classList.add('cell');
+                thisCell.setAttribute('row', row);
+                thisCell.setAttribute('column', cell);
+                thisCell.textContent = gameBoard[row][cell];
+                board.appendChild(thisCell);
+            }
+        }
+    }
+
+    drawBoard();
+
+    board.addEventListener('click', (button) => {
+        let row = button.target.getAttribute('row');
+        let column = button.target.getAttribute('column');
+        gameBoard[row][column] = 'X';
+        drawBoard();
+    });
+
+    buttons.addEventListener('click', () => {
+        boardFunctions.makeBoard();
+        drawBoard();
+    })
+
+})
+
+const gameTime = displayGame;
+gameTime();
