@@ -1,23 +1,32 @@
 const myP = document.querySelector('p');
 myP.innerText = 'Testing, 1, 2, 3...';
 
-
 // You’re going to store the gameboard as an array inside of a Gameboard object, so start there!
 const GameBoard = (function() {
-    
-    let gameBoard = {
-        'a1':0, 'a2':0, 'a3':0,
-        'b1':0, 'b2':0, 'b3':0,
-        'c1':0, 'c2':0, 'c3':0
-    }; // But how would I generate this programmatically? And it's supposed to be an array...
+    let gameBoard = []
+    let gameRows = 0;
+    let gameColumns = 0;
 
-    function markPlace(player, place, board = gameBoard) {
-        if (!board[place] == 0 || board[place] == undefined) {
+    function makeBoard(rows = 3, columns = 3) {
+        gameBoard = [];
+        gameRows = rows;
+        gameColumns = columns;
+
+        for (let i = 0; i < rows; i++) {
+            gameBoard[i] = [];
+            for (let j = 0; j < columns; j++) {
+                gameBoard[i][j] = 0;
+            }
+        }
+    }
+
+    function markPlace(player, row, column, board = gameBoard) {
+        if (board[row] === undefined || board[row][column] === undefined || board[row][column] !== 0) {
             console.log(`Can't play there.`);
             return false;
         } else {
-            board[place] = player.mark;
-            console.log(`${player.name} placed ${player.mark} at ${place}.`);
+            board[row][column] = player.mark;
+            console.log(`${player.name} placed ${player.mark} at row ${row}, column ${column}.`);
             return true;
         }
     }
@@ -26,33 +35,34 @@ const GameBoard = (function() {
         console.log(gameBoard);
     }
 
-    function resetBoard() {
-        gameBoard = {
-            'a1':0, 'a2':0, 'a3':0,
-            'b1':0, 'b2':0, 'b3':0,
-            'c1':0, 'c2':0, 'c3':0
-        };
-    }
-
     function checkWinner() {
-        let placesLeft = 9;
-        for (let place in gameBoard) {
-            if (gameBoard[place] !== 0) {
-                placesLeft--;
+        let placesLeft = gameRows * gameColumns;
+        for (let row in gameBoard) {
+            for (let column in gameBoard) {
+                if (gameBoard[row][column] !== 0) {
+                    placesLeft--;
+                }
             }
         }
-
         if (placesLeft === 0) {
             return "Tie!";
         } else if (
-            (gameBoard.a1 == gameBoard.a2 && gameBoard.a2 == gameBoard.a3 && gameBoard.a1 + gameBoard.a2 + gameBoard.a3 !== 0) ||
-            (gameBoard.b1 == gameBoard.b2 && gameBoard.b2 == gameBoard.b3 && gameBoard.b1 + gameBoard.b2 + gameBoard.b3 !== 0) ||
-            (gameBoard.c1 == gameBoard.c2 && gameBoard.c2 == gameBoard.c3 && gameBoard.c1 + gameBoard.c2 + gameBoard.c3 !== 0) ||
-            (gameBoard.a1 == gameBoard.b1 && gameBoard.b1 == gameBoard.c1 && gameBoard.a1 + gameBoard.b1 + gameBoard.c1 !== 0) ||
-            (gameBoard.a2 == gameBoard.b2 && gameBoard.b2 == gameBoard.c2 && gameBoard.a2 + gameBoard.b2 + gameBoard.c2 !== 0) ||
-            (gameBoard.a3 == gameBoard.b3 && gameBoard.b3 == gameBoard.c3 && gameBoard.a3 + gameBoard.b3 + gameBoard.c3 !== 0) ||
-            (gameBoard.a1 == gameBoard.b2 && gameBoard.b2 == gameBoard.c3 && gameBoard.a1 + gameBoard.b2 + gameBoard.c3 !== 0) ||
-            (gameBoard.a3 == gameBoard.b2 && gameBoard.b2 == gameBoard.c1 && gameBoard.a3 + gameBoard.b2 + gameBoard.c1 !== 0)
+            (gameBoard[0][0] + gameBoard[0][1] + gameBoard[0][2] !== 0 &&
+            gameBoard[0][0] === gameBoard[0][1] && gameBoard[0][1] === gameBoard[0][2]) ||
+            (gameBoard[1][0] + gameBoard[1][1] + gameBoard[1][2] !== 0 &&
+            gameBoard[1][0] === gameBoard[1][1] && gameBoard[1][1] === gameBoard[1][2]) ||
+            (gameBoard[2][0] + gameBoard[2][1] + gameBoard[2][2] !== 0 &&
+            gameBoard[2][0] === gameBoard[2][1] && gameBoard[2][1] === gameBoard[2][2]) ||
+            (gameBoard[0][0] + gameBoard[1][0] + gameBoard[2][0] !== 0 &&
+            gameBoard[0][0] === gameBoard[1][0] && gameBoard[1][0] === gameBoard[2][0]) ||
+            (gameBoard[1][0] + gameBoard[1][1] + gameBoard[1][2] !== 0 &&
+            gameBoard[1][0] === gameBoard[1][1] && gameBoard[1][1] === gameBoard[1][2]) ||
+            (gameBoard[2][0] + gameBoard[2][1] + gameBoard[2][2] !== 0 &&
+            gameBoard[2][0] === gameBoard[2][1] && gameBoard[2][1] === gameBoard[2][2]) ||
+            (gameBoard[0][0] + gameBoard[1][1] + gameBoard[2][2] !== 0 &&
+            gameBoard[0][0] === gameBoard[1][1] && gameBoard[1][1] === gameBoard[2][2]) ||
+            (gameBoard[2][0] + gameBoard[1][1] + gameBoard[0][2] !== 0 &&
+            gameBoard[2][0] === gameBoard[1][1] && gameBoard[1][1] === gameBoard[0][2])
         ) {
             return true;
         } else {
@@ -60,7 +70,7 @@ const GameBoard = (function() {
         }
     }
 
-    return {markPlace, seeBoard, checkWinner, resetBoard};
+    return {markPlace, seeBoard, checkWinner, makeBoard};
 
 })();
 
@@ -76,30 +86,26 @@ const PlayGame = (function() {
 
     const players = Players;
     const gameBoard = GameBoard;
-    let winner = gameBoard.checkWinner();
+    gameBoard.makeBoard()
+    let winner = gameBoard.checkWinner()
 
     function playGame() {
         let winningPlayer;
-        while (winner == false) {
-            while (!gameBoard.markPlace(
-                players[0],
-                prompt(`${players[0].name}, where would you like to place your ${players[0].mark}?`)
-            ));
-            gameBoard.seeBoard();
-            winner = gameBoard.checkWinner();
-            if (winner != false) {
-                winningPlayer = players[0].name;
-                break;
-            }
-            while (!gameBoard.markPlace(
-                players[1],
-                prompt(`${players[1].name}, where would you like to place your ${players[1].mark}?`)
-            ));
-            gameBoard.seeBoard();
-            winner = gameBoard.checkWinner();
-            if (winner != false) {
-                winningPlayer = players[1].name;
-                break;
+        while (winner === false) {
+            for (let player in players) {
+                while (!gameBoard.markPlace(
+                    players[player],
+                    +prompt(`${players[player].name}, in what row would you like to place your ${players[player].mark}?`), 
+                    +prompt(`${players[player].name}, in what column would you like to place your ${players[player].mark}?`)
+                ));
+                gameBoard.seeBoard();
+                winner = gameBoard.checkWinner();
+                if (winner === true) {
+                    winningPlayer = players[player].name;
+                    break;
+                } else if (winner !== false) {
+                    break;
+                }
             }
         }
         if (winner === true) {
@@ -107,11 +113,12 @@ const PlayGame = (function() {
         } else if (winner === "Tie!") {
             console.log(winner);
         }
-        gameBoard.resetBoard();
+        console.log(winner);
+        gameBoard.makeBoard();
         winner = gameBoard.checkWinner();
     }
 
-    return {playGame};
+    return {playGame, winner};
 
     // displayController (later)
 
