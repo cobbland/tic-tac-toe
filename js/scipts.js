@@ -149,6 +149,8 @@ const displayGame = (function() {
     const board = document.querySelector('.board');
     const display = document.querySelector('.display');
     const buttons = document.querySelector('.buttons');
+    const getNames = document.querySelector('.get-names');
+    const getNamesForm = document.querySelector('.get-names-form');
     
     const boardFunctions = GameBoard;
     const playFunctions = PlayGame;
@@ -157,6 +159,8 @@ const displayGame = (function() {
     let gameBoard = boardFunctions.seeBoard();
 
     let gameOn = false;
+
+    let havePlayed = false;
 
     function drawBoard() {
         while (board.firstChild) {
@@ -188,10 +192,12 @@ const displayGame = (function() {
                 if (playFunctions.gameOver() === 'Tie!') {
                     display.textContent = `Tie!`;
                     gameOn = false;
+                    havePlayed = true;
                 } else if (playFunctions.gameOver() !== false) {
                     console.log('the game is over...')
                     display.textContent = `${playFunctions.checkWinningPlayer().name} wins!`;
                     gameOn = false;
+                    havePlayed = true;
                 } else {
                     playFunctions.nextPlayer();
                     player = playFunctions.checkCurrentPlayer();
@@ -206,24 +212,37 @@ const displayGame = (function() {
     buttons.addEventListener('click', (button) => {
         if (button.target.classList.contains('new')) {
             gameOn = true;
-            playerFunctions.makePlayers(
-                prompt("Player 1's name:"),
-                prompt("Player 2's name:")
-            );
+            display.textContent = 'Enter your details...';
+            getNames.showModal();
+            getNamesListener();
+        } else if (button.target.classList.contains('replay')) {
+            if (gameOn === false && havePlayed === false) {
+                display.textContent = 'You must start a game before you can replay one!';
+            } else {
+                gameOn = true;
+                playFunctions.newGame();
+                gameBoard = boardFunctions.seeBoard();
+                drawBoard();
+                display.textContent = `${playFunctions.checkCurrentPlayer().name}'s turn...`;
+            }
+        }
+    })
+
+    function getNamesListener() {
+        getNamesForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            getNames.close();
+            let player1 = getNamesForm['first-player'].value;
+            let player2 = getNamesForm['second-player'].value;
+            playerFunctions.makePlayers(player1, player2)
             playFunctions.getNewPlayers();
             playFunctions.newGame();
             gameBoard = boardFunctions.seeBoard();
             drawBoard();
             display.textContent = `${playFunctions.checkCurrentPlayer().name}'s turn...`;
-        } else if (button.target.classList.contains('replay')) {
-            gameOn = true;
-            playFunctions.newGame();
-            gameBoard = boardFunctions.seeBoard();
-            drawBoard();
-            display.textContent = `${playFunctions.checkCurrentPlayer().name}'s turn...`;
-        }
-    })
-
+            return true;
+        })
+    }
 })
 
 const gameTime = displayGame;
