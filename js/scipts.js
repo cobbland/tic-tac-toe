@@ -78,17 +78,25 @@ const Players = (function() {
         player2 = {name: second, mark: 'O'};
     }
 
-    makePlayers();
+    function getPlayers() {
+        return [player1, player2];
+    }
 
-    return {player1, player2, makePlayers};
+    // makePlayers();
+
+    return {makePlayers, getPlayers};
 })();
 
 const PlayGame = (function() {
-    const players = [Players.player1, Players.player2];
     const gameBoard = GameBoard;
 
+    let players = Players.getPlayers();
     let currentPlayer = players[0];
     let winningPlayer = gameOver();
+
+    function getNewPlayers() {
+        players = Players.getPlayers();
+    }
 
     function newGame() {
         gameBoard.makeBoard();
@@ -122,18 +130,18 @@ const PlayGame = (function() {
     }
 
     function gameOver() {
-        if (gameBoard.checkWinner()) {
-            winningPlayer = currentPlayer;
-            return true;
-        } else if (!gameBoard.checkWinner()) {
-            return false;
-        } else {
+        if (gameBoard.checkWinner() === 'Tie!') {
             winningPlayer = 'Tie!';
             return 'Tie!';
-        }
+        } else if (gameBoard.checkWinner()) {
+            winningPlayer = currentPlayer;
+            return true;
+        } else {
+            return false;
+        } 
     }
 
-    return {playTurn, checkCurrentPlayer, checkWinningPlayer, newGame, nextPlayer, gameOver};
+    return {playTurn, checkCurrentPlayer, checkWinningPlayer, newGame, nextPlayer, gameOver, getNewPlayers};
 
 })();
 
@@ -177,7 +185,10 @@ const displayGame = (function() {
             let player = playFunctions.checkCurrentPlayer();
             if (playFunctions.playTurn(player, row, column)) {
                 drawBoard();
-                if (playFunctions.gameOver() !== false) {
+                if (playFunctions.gameOver() === 'Tie!') {
+                    display.textContent = `Tie!`;
+                    gameOn = false;
+                } else if (playFunctions.gameOver() !== false) {
                     console.log('the game is over...')
                     display.textContent = `${playFunctions.checkWinningPlayer().name} wins!`;
                     gameOn = false;
@@ -193,13 +204,24 @@ const displayGame = (function() {
     });
 
     buttons.addEventListener('click', (button) => {
-        if (button.target.classList.contains('start')) {
+        if (button.target.classList.contains('new')) {
+            gameOn = true;
+            playerFunctions.makePlayers(
+                prompt("Player 1's name:"),
+                prompt("Player 2's name:")
+            );
+            playFunctions.getNewPlayers();
+            playFunctions.newGame();
+            gameBoard = boardFunctions.seeBoard();
+            drawBoard();
+            display.textContent = `${playFunctions.checkCurrentPlayer().name}'s turn...`;
+        } else if (button.target.classList.contains('replay')) {
             gameOn = true;
             playFunctions.newGame();
             gameBoard = boardFunctions.seeBoard();
             drawBoard();
             display.textContent = `${playFunctions.checkCurrentPlayer().name}'s turn...`;
-        } 
+        }
     })
 
 })
