@@ -40,9 +40,7 @@ const GameBoard = (function() {
                 }
             }
         }
-        if (placesLeft === 0) {
-            return "Tie!";
-        } else if (
+         if (
             (gameBoard[0][0] + gameBoard[0][1] + gameBoard[0][2] !== 0 &&
             gameBoard[0][0] === gameBoard[0][1] && gameBoard[0][1] === gameBoard[0][2]) ||
             (gameBoard[1][0] + gameBoard[1][1] + gameBoard[1][2] !== 0 &&
@@ -61,6 +59,8 @@ const GameBoard = (function() {
             gameBoard[2][0] === gameBoard[1][1] && gameBoard[1][1] === gameBoard[0][2])
         ) {
             return true;
+        } else if (placesLeft === 0) {
+            return "Tie!";
         } else {
             return false;
         }
